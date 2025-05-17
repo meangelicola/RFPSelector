@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import DocumentHeader from './document-header';
 import TabNavigation from './tab-navigation';
 import ActionBar from './action-bar';
@@ -8,6 +8,7 @@ import EditModal from './edit-modal';
 import OutlineModal from './outline-modal';
 import { useSynchronizedHighlight } from '@/hooks/use-synchronized-highlight';
 import { useDocumentViewer } from '@/hooks/use-document-viewer';
+import { rfpContent } from '@/data/rfp-document';
 
 const RfpViewer: FC = () => {
   // Tab state
@@ -28,7 +29,18 @@ const RfpViewer: FC = () => {
   const [highlightedSections, setHighlightedSections] = useState<{ [key: string]: boolean }>({});
   
   // Document functions
-  const { saveChanges } = useDocumentViewer();
+  const { saveChanges, updateHighlightsForTab, generatedOutline } = useDocumentViewer();
+  
+  // Update highlights when active tab changes
+  useEffect(() => {
+    updateHighlightsForTab(activeTab);
+  }, [activeTab, updateHighlightsForTab]);
+  
+  // Calculate total pages based on the highest page number in content
+  useEffect(() => {
+    const maxPage = Math.max(...rfpContent.map(section => section.pageNumber));
+    setTotalPages(maxPage);
+  }, [rfpContent]);
 
   return (
     <div className="flex flex-col h-screen bg-white">
@@ -75,7 +87,7 @@ const RfpViewer: FC = () => {
       {showOutlineModal && (
         <OutlineModal 
           setShowOutlineModal={setShowOutlineModal}
-          outline={[]}
+          outline={generatedOutline}
         />
       )}
     </div>

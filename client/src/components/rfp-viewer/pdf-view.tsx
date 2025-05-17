@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { rfpContent, DocumentSection } from "@/data/rfp-document";
 import { useSynchronizedHighlight } from "@/hooks/use-synchronized-highlight";
@@ -29,16 +29,56 @@ const PdfView: FC<PdfViewProps> = ({
   const { handleMouseEnter, handleMouseLeave } = useSynchronizedHighlight(
     setHoveredSection
   );
+  
+  // Group sections by page number
+  const [pageContentMap, setPageContentMap] = useState<{[key: number]: DocumentSection[]}>({});
+
+  useEffect(() => {
+    // Create a map of all pages and their content
+    const pageMap: {[key: number]: DocumentSection[]} = {};
+    
+    // Get all unique page numbers
+    const pageNumbers = Array.from(new Set(rfpContent.map(section => section.pageNumber)));
+    
+    // Sort page numbers
+    pageNumbers.sort((a, b) => a - b);
+    
+    // Group sections by page
+    pageNumbers.forEach(pageNum => {
+      pageMap[pageNum] = rfpContent.filter(section => section.pageNumber === pageNum);
+    });
+    
+    setPageContentMap(pageMap);
+  }, [rfpContent]);
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
+      
+      // Scroll to the top of the page
+      const pdfContent = document.getElementById('pdf-view-content');
+      if (pdfContent) {
+        pdfContent.scrollTop = 0;
+      }
     }
   };
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
+      
+      // Scroll to the top of the page
+      const pdfContent = document.getElementById('pdf-view-content');
+      if (pdfContent) {
+        pdfContent.scrollTop = 0;
+      }
+    }
+  };
+
+  const handlePageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const pageNum = parseInt(e.target.value);
+    if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
+      setCurrentPage(pageNum);
     }
   };
 
@@ -52,19 +92,43 @@ const PdfView: FC<PdfViewProps> = ({
     }
   };
 
+  const getHighlightClass = (section: DocumentSection) => {
+    // If we're in full document view, use appropriate color for each section type
+    if (activeTab === "fullDocument") {
+      if (section.tabCategory === "instructions") return "highlight-instructions";
+      if (section.tabCategory === "pws") return "highlight-pws";
+      if (section.tabCategory === "evaluation") return "highlight-evaluation";
+      return "";
+    }
+    
+    // Otherwise, only highlight if section matches current tab category
+    if (section.tabCategory === activeTab) {
+      if (activeTab === "instructions") return "highlight-instructions";
+      if (activeTab === "pws") return "highlight-pws";
+      if (activeTab === "evaluation") return "highlight-evaluation";
+    }
+    
+    return "";
+  };
+
   const isHighlighted = (section: DocumentSection) => {
-    if (activeTab === "fullDocument") return false;
-    return highlightedSections[section.sectionId] || false;
+    if (activeTab === "fullDocument") {
+      // In full document view, sections are highlighted based on their category
+      return section.tabCategory === "instructions" || 
+             section.tabCategory === "pws" || 
+             section.tabCategory === "evaluation";
+    }
+    
+    // In specific tabs, only highlight if section matches the tab
+    return section.tabCategory === activeTab;
   };
 
   const isHovered = (section: DocumentSection) => {
     return hoveredSection === section.sectionId;
   };
 
-  // Filter content for current page
-  const pdfPagesContent = rfpContent.filter(
-    (section) => section.pageNumber === currentPage
-  );
+  // Get all pages for continuous scrolling
+  const allPages = Object.keys(pageContentMap).map(Number);
 
   return (
     <div className="w-1/2 flex flex-col">
@@ -90,6 +154,60 @@ const PdfView: FC<PdfViewProps> = ({
           </button>
         </div>
         <div className="flex items-center space-x-2">
+          <div className="flex items-center border border-gray-300 rounded overflow-hidden mr-2">
+            <button
+              className="text-gray-600 hover:bg-gray-100 px-2 py-1.5"
+              title="Previous"
+              onClick={handlePreviousPage}
+            >
+              <svg
+                className="h-4 w-4"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+            <div className="px-3 py-1 text-sm border-x border-gray-300 flex items-center">
+              <span className="mr-1">Page</span>
+              <input 
+                type="text" 
+                value={currentPage}
+                onChange={handlePageChange}
+                className="w-8 text-center border border-gray-300 rounded"
+              />
+              <span className="mx-1">of</span>
+              <span>{totalPages}</span>
+            </div>
+            <button
+              className="text-gray-600 hover:bg-gray-100 px-2 py-1.5"
+              title="Next"
+              onClick={handleNextPage}
+            >
+              <svg
+                className="h-4 w-4"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </button>
+          </div>
+          
           <div className="flex border border-gray-300 rounded overflow-hidden">
             <button
               className="text-gray-600 hover:bg-gray-100 p-1.5"
@@ -144,62 +262,71 @@ const PdfView: FC<PdfViewProps> = ({
         className="flex-1 bg-gray-100 overflow-y-auto custom-scrollbar"
       >
         <div id="pdf-pages-container" className="flex flex-col items-center py-6">
-          <div
-            className="pdf-page w-full max-w-4xl px-10 py-8 mx-6 mb-6 bg-white shadow-md relative"
-            style={{ transform: `scale(${zoomLevel})`, transformOrigin: "top center" }}
-          >
-            {currentPage === 1 && (
-              <>
-                <div className="absolute top-2 right-2 text-xs text-gray-500">
-                  Attachment D
-                </div>
-                
-                <div className="text-right mb-8">
-                  <p className="text-xs">RFQ 89303024QIM000043</p>
-                  <p className="text-xs">Attachment D</p>
-                </div>
+          {/* Render all pages for continuous scrolling */}
+          {allPages.map(pageNum => (
+            <div 
+              key={`page-${pageNum}`}
+              id={`pdf-page-${pageNum}`}
+              className="pdf-page w-full max-w-4xl px-10 py-8 mx-6 mb-8 bg-white shadow-md relative page-break-container"
+              style={{ transform: `scale(${zoomLevel})`, transformOrigin: "top center" }}
+            >
+              {/* Page header for first page */}
+              {pageNum === 1 && (
+                <>
+                  <div className="absolute top-2 right-2 text-xs text-gray-500">
+                    US Department of Fun
+                  </div>
+                  
+                  <div className="text-right mb-8">
+                    <p className="text-xs">USDOF-2025-ADMIN-0042</p>
+                    <p className="text-xs">Administrative Support Services</p>
+                  </div>
 
-                <div className="text-center uppercase font-bold mb-8">
-                  <h1 className="text-xl mb-2">QUOTE PREPARATION INSTRUCTIONS</h1>
-                </div>
-              </>
-            )}
+                  <div className="text-center uppercase font-bold mb-8">
+                    <h1 className="text-xl mb-2">REQUEST FOR PROPOSALS</h1>
+                  </div>
+                </>
+              )}
 
-            {pdfPagesContent.map((section) => (
-              <div
-                key={`pdf-${section.sectionId}`}
-                id={`pdf-section-${section.sectionId}`}
-                className={cn(
-                  "mb-8 sync-highlight p-2 -mx-2 rounded",
-                  isHighlighted(section) && "bg-blue-50",
-                  isHovered(section) && "bg-blue-100"
-                )}
-                data-section={section.sectionId}
-                onMouseEnter={() => handleMouseEnter(section.sectionId)}
-                onMouseLeave={handleMouseLeave}
-              >
-                <h3 className="font-bold uppercase mb-4">
-                  {section.title}
-                </h3>
-                <div className="pdf-content">
-                  <div>
-                    {section.content.split("\n").map((paragraph, idx) => (
-                      <p
-                        key={`${section.sectionId}-pdf-p-${idx}`}
-                        className="mb-3"
-                      >
-                        {paragraph}
-                      </p>
-                    ))}
+              {/* Page content - all sections for this page */}
+              {pageContentMap[pageNum]?.map((section) => (
+                <div
+                  key={`pdf-${section.sectionId}`}
+                  id={`pdf-section-${section.sectionId}`}
+                  className={cn(
+                    "mb-8 sync-highlight p-2 -mx-2 rounded",
+                    getHighlightClass(section),
+                    isHighlighted(section) && !getHighlightClass(section) && "bg-blue-50",
+                    isHovered(section) && "bg-blue-100"
+                  )}
+                  data-section={section.sectionId}
+                  onMouseEnter={() => handleMouseEnter(section.sectionId)}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <h3 className="font-bold uppercase mb-4">
+                    {section.title}
+                  </h3>
+                  <div className="pdf-content">
+                    <div>
+                      {section.content.split("\n").map((paragraph, idx) => (
+                        <p
+                          key={`${section.sectionId}-pdf-p-${idx}`}
+                          className="mb-3"
+                        >
+                          {paragraph}
+                        </p>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
 
-            <div className="text-center mt-8 pt-4 border-t border-gray-200 text-xs text-gray-500">
-              <p>Page {currentPage} of {totalPages}</p>
+              {/* Page footer with page number */}
+              <div className="text-center mt-8 pt-4 border-t border-gray-200 text-xs text-gray-500">
+                <p>Page {pageNum} of {totalPages}</p>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { rfpContent, DocumentSection } from "@/data/rfp-document";
 import { useSynchronizedHighlight } from "@/hooks/use-synchronized-highlight";
@@ -10,6 +10,13 @@ interface ExtractedTextViewProps {
   highlightedSections: { [key: string]: boolean };
 }
 
+interface LineSelection {
+  sectionId: string;
+  lineIndex: number;
+  text: string;
+  isSelected: boolean;
+}
+
 const ExtractedTextView: FC<ExtractedTextViewProps> = ({
   activeTab,
   hoveredSection,
@@ -19,10 +26,65 @@ const ExtractedTextView: FC<ExtractedTextViewProps> = ({
   const { handleMouseEnter, handleMouseLeave } = useSynchronizedHighlight(
     setHoveredSection
   );
+  
+  // Track line-by-line selection
+  const [selectedLines, setSelectedLines] = useState<LineSelection[]>([]);
+  const [editMode, setEditMode] = useState(false);
+
+  const toggleLineSelection = (sectionId: string, lineIndex: number, text: string) => {
+    if (!editMode) return;
+    
+    setSelectedLines(prev => {
+      // Check if this line is already selected
+      const existingLineIndex = prev.findIndex(
+        line => line.sectionId === sectionId && line.lineIndex === lineIndex
+      );
+      
+      if (existingLineIndex >= 0) {
+        // Remove the line if it's already selected
+        return prev.filter((_, idx) => idx !== existingLineIndex);
+      } else {
+        // Add the line to selections
+        return [...prev, { sectionId, lineIndex, text, isSelected: true }];
+      }
+    });
+  };
+
+  const isLineSelected = (sectionId: string, lineIndex: number) => {
+    return selectedLines.some(
+      line => line.sectionId === sectionId && line.lineIndex === lineIndex
+    );
+  };
+
+  const getHighlightClass = (section: DocumentSection) => {
+    // In full document view, use appropriate color for each section type
+    if (activeTab === "fullDocument") {
+      if (section.tabCategory === "instructions") return "highlight-instructions";
+      if (section.tabCategory === "pws") return "highlight-pws";
+      if (section.tabCategory === "evaluation") return "highlight-evaluation";
+      return "";
+    }
+    
+    // Otherwise, only highlight if section matches current tab category
+    if (section.tabCategory === activeTab) {
+      if (activeTab === "instructions") return "highlight-instructions";
+      if (activeTab === "pws") return "highlight-pws";
+      if (activeTab === "evaluation") return "highlight-evaluation";
+    }
+    
+    return "";
+  };
 
   const isHighlighted = (section: DocumentSection) => {
-    if (activeTab === "fullDocument") return false;
-    return highlightedSections[section.sectionId] || false;
+    if (activeTab === "fullDocument") {
+      // In full document view, sections are highlighted based on their category
+      return section.tabCategory === "instructions" || 
+             section.tabCategory === "pws" || 
+             section.tabCategory === "evaluation";
+    }
+    
+    // In specific tabs, only highlight if section matches the tab
+    return section.tabCategory === activeTab;
   };
 
   const isHovered = (section: DocumentSection) => {
@@ -49,6 +111,16 @@ const ExtractedTextView: FC<ExtractedTextViewProps> = ({
           </div>
         </div>
         <div className="flex items-center space-x-2">
+          <button
+            onClick={() => setEditMode(!editMode)}
+            className={`text-xs px-3 py-1 rounded transition-colors ${
+              editMode 
+                ? "bg-blue-600 text-white" 
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            {editMode ? "Exit Edit Mode" : "Edit Mode"}
+          </button>
           <div className="relative">
             <input 
               type="text" 
@@ -91,11 +163,17 @@ const ExtractedTextView: FC<ExtractedTextViewProps> = ({
       </div>
       
       <div className="px-3 py-2 bg-gray-50 border-b border-gray-200">
-        <div className="flex items-center">
+        <div className="flex items-center justify-between">
           <label className="inline-flex items-center">
             <input type="checkbox" className="form-checkbox h-3.5 w-3.5 text-blue-600 rounded" />
             <span className="ml-2 text-xs font-medium">Highlight shall/will/must</span>
           </label>
+          
+          {editMode && (
+            <span className="text-xs text-blue-600 font-medium">
+              {selectedLines.length} line{selectedLines.length !== 1 ? 's' : ''} selected
+            </span>
+          )}
         </div>
       </div>
       
@@ -107,8 +185,8 @@ const ExtractedTextView: FC<ExtractedTextViewProps> = ({
           <p className="font-medium text-gray-900 mb-3">Start of document</p>
           {activeTab === "fullDocument" && (
             <div className="mb-4">
-              <p className="text-sm font-medium">RFQ 89303024QIM000043</p>
-              <p className="text-sm">Attachment D</p>
+              <p className="text-sm font-medium">USDOF-2025-ADMIN-0042</p>
+              <p className="text-sm">Administrative Support Services</p>
             </div>
           )}
         </div>
@@ -120,7 +198,8 @@ const ExtractedTextView: FC<ExtractedTextViewProps> = ({
               id={`section-${section.sectionId}`}
               className={cn(
                 "sync-highlight py-1 px-2 -mx-2 transition-colors duration-150 rounded",
-                isHighlighted(section) && "bg-blue-50",
+                getHighlightClass(section),
+                isHighlighted(section) && !getHighlightClass(section) && "bg-blue-50",
                 isHovered(section) && "bg-blue-100"
               )}
               data-section={section.sectionId}
@@ -128,11 +207,39 @@ const ExtractedTextView: FC<ExtractedTextViewProps> = ({
               onMouseLeave={handleMouseLeave}
             >
               <h3 className="font-bold text-gray-900 mb-2 uppercase">{section.title}</h3>
-              {section.content.split("\n").map((paragraph, idx) => (
-                <p key={`${section.sectionId}-p-${idx}`} className="mb-3 text-gray-800 leading-relaxed">
-                  {paragraph}
-                </p>
-              ))}
+              <div className="editable-content">
+                {section.content.split("\n").map((paragraph, pIdx) => (
+                  <div key={`${section.sectionId}-p-${pIdx}`} className="mb-3">
+                    {/* Split paragraphs into lines for line-by-line selection */}
+                    {paragraph.split(". ").map((line, lIdx) => {
+                      // Skip empty lines
+                      if (!line.trim()) return null;
+                      
+                      // Add period back except for the last line if the paragraph doesn't end with a period
+                      const displayLine = lIdx < paragraph.split(". ").length - 1 || paragraph.endsWith(".")
+                        ? line + (lIdx < paragraph.split(". ").length - 1 ? "." : "")
+                        : line;
+                      
+                      const lineKey = `${section.sectionId}-line-${pIdx}-${lIdx}`;
+                      const isSelected = isLineSelected(section.sectionId, pIdx * 1000 + lIdx);
+                      
+                      return (
+                        <div 
+                          key={lineKey}
+                          className={cn(
+                            "line rounded mb-1",
+                            editMode && "cursor-pointer",
+                            isSelected && "selected"
+                          )}
+                          onClick={() => toggleLineSelection(section.sectionId, pIdx * 1000 + lIdx, displayLine)}
+                        >
+                          {displayLine}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
         </div>
