@@ -5,11 +5,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
+import RfpViewer from "@/components/rfp-viewer";
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/" component={RfpViewer} />
+      <Route path="/home" component={Home} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -20,7 +22,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        <Router />
+        <div className="min-h-screen bg-white text-gray-900">
+          <Router />
+        </div>
       </TooltipProvider>
     </QueryClientProvider>
   );

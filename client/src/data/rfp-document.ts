@@ -11,110 +11,122 @@ export interface OutlineItem {
   children?: OutlineItem[];
 }
 
+// RFP content extracted from the provided PDF
 export const rfpContent: DocumentSection[] = [
   {
-    sectionId: "a",
-    title: "SECTION A - SOLICITATION/CONTRACT FORM",
-    content: "SOLICITATION NO: HHS-2023-IT-0042\nDATE ISSUED: August 15, 2023\nISSUED BY: Department of Health and Human Services\nCONTRACT TYPE: Firm-Fixed Price\nNAICS CODE: 541513\nSET-ASIDE: Small Business",
+    sectionId: "intro",
+    title: "NOTICE TO VENDORS",
+    content: "The objective of this acquisition is to award a Blanket Purchase Agreement (BPA) against the General Services Administration (GSA) Multiple Award Schedule (MAS), in accordance with Federal Acquisition Regulation (FAR) 8.405-2, for the services described in this RFQ and its attachments.\n\nThis requirement is for small businesses using NAICS 541511 – Custom Computer Programming Services, with a size standard of $34 million determined to represent the principal purpose of this requirement. In order to be considered for award, a vendor/Contractor Team Arrangement (CTA), collectively, will be required to cover the Special Item Number (SIN) (518210C) listed above awarded on their (or collectively on the CTA's) Schedule contract(s). Any quotes received from a vendor or CTA that does not cover the required SIN will be ineligible for award.\n\nIt is anticipated that services will begin on or about September 27, 2024. It is anticipated that the BPA will consist of a Base Period (12 months) and four (4) one-year options, September 27, 2024 – September 26, 2029.",
     tabCategory: "fullDocument",
     pageNumber: 1
   },
   {
-    sectionId: "b",
-    title: "SECTION B - SUPPLIES OR SERVICES AND PRICES/COSTS",
-    content: "B.1 GENERAL\nThe contractor shall provide all resources necessary to accomplish the tasks and deliverables described in this solicitation. The Government intends to award a Firm-Fixed Price contract resulting from this solicitation.\nB.2 CONTRACT LINE ITEMS\nCLIN 0001: IT Support Services Base Period\nCLIN 0002: IT Support Services Option Period 1\nCLIN 0003: IT Support Services Option Period 2",
+    sectionId: "brief-description",
+    title: "BRIEF DESCRIPTION OF SERVICES",
+    content: "In the HR Systems, Analytics, and Information Division (HR SAID), the Web and Information Management Branch (WIMB) maintains the NIH Office of Human Resources (OHR) website in Drupal. The branch needs experienced Drupal developers to help in the areas of website management, search, and content design. Engaging contractors who have experience in Drupal site development and content structure, specifically in an Acquia cloud environment is desired. Contractors who have experience in content editing, strategy, and architecture will help the branch deliver communication in a marketable way to our audiences.\n\nHR SAID has established a framework that 1) supports the development, maintenance and operations to support OHR Divisions' business needs for SharePoint Online and Power Platform; 2) migrate subsites to a SharePoint Online platform within the Office 365 environment; and 3) supports the creation of holistic digital experiences through the creation of digital solutions in such platforms as SharePoint, SharePoint Online and other web technologies/solutions. The planning for migration and support for current sites and support for future work will need to be completed during the duration of this BPA. OHR is seeking Contractors to provide full lifecycle support, which includes planning and maintenance, to all OHR Divisions.",
+    tabCategory: "fullDocument",
+    pageNumber: 1
+  },
+  {
+    sectionId: "goal",
+    title: "Goal",
+    content: "The primary goal is to offer OHR a method to procure budget module tools and maintenance support services. OHR intends to award one BPA. This initiative is expected to streamline OHR's process for acquiring experienced support services for specific projects and help achieve discounts through economies of scale.",
+    tabCategory: "fullDocument",
+    pageNumber: 1
+  },
+  {
+    sectionId: "scope",
+    title: "Scope",
+    content: "OHR intends to establish one and/or more BPAs under SCHEDULE (MAS), CATEGORY 518210C Cloud-related IT professional services Federal Acquisition Regulation (FAR) Subpart 8.4 procedures. All labor categories offered in response to this RFQ must be awarded under the Contractor's SCHEDULE (MAS) contract. Prices proposed under this BPA shall not exceed those rates currently awarded under the Contractor's Schedule (MAS) contract.\n\nContractors are encouraged to offer discounts from their currently awarded Schedule prices. OHR may choose to not enter into a BPA with a Contractor whose quoted prices offer no discounts from prices awarded under Schedule (MAS) contracts. There are no intended nor implied guarantees regarding the Government's usage of this vehicle.",
     tabCategory: "fullDocument",
     pageNumber: 2
   },
   {
-    sectionId: "c",
-    title: "SECTION C - DESCRIPTION/SPECIFICATIONS/STATEMENT OF WORK",
-    content: "C.1 BACKGROUND\nThe Department of Health and Human Services (HHS) requires professional IT support services to maintain its technological infrastructure and provide timely service to its employees and stakeholders.\nC.2 SCOPE\nThe contractor shall provide comprehensive IT support services including but not limited to help desk support, network administration, cybersecurity services, and software application maintenance for HHS headquarters and designated field offices.",
-    tabCategory: "fullDocument",
-    pageNumber: 2
-  },
-  {
-    sectionId: "pws",
-    title: "PERFORMANCE WORK STATEMENT (PWS)",
-    content: "1.0 PURPOSE\nThis Performance Work Statement (PWS) defines the performance requirements for IT Support Services for the Department of Health and Human Services.\n2.0 SCOPE\nThe contractor shall provide qualified personnel, management, materials, equipment, and services to perform IT support services as defined in this PWS.\n3.0 SPECIFIC TASKS\n3.1 Help Desk Support\nThe contractor shall provide Tier 1, 2, and 3 help desk support services to approximately 5,000 users across HHS facilities.\n3.2 Network Administration\nThe contractor shall manage and maintain network infrastructure including routers, switches, firewalls, and wireless access points.\n3.3 Cybersecurity Services\nThe contractor shall provide cybersecurity support including vulnerability assessments, security patch management, and incident response.",
-    tabCategory: "pws",
-    pageNumber: 3
-  },
-  {
-    sectionId: "evaluation",
-    title: "SECTION M - EVALUATION CRITERIA",
-    content: "M.1 EVALUATION APPROACH\nThe Government will award a contract resulting from this solicitation to the responsible offeror whose offer conforming to the solicitation represents the best value to the Government, price and other factors considered.\nM.2 EVALUATION FACTORS\nThe following evaluation factors will be used to evaluate proposals:\nFactor 1: Technical Approach (40%)\nFactor 2: Management Plan (25%)\nFactor 3: Corporate Experience (20%)\nFactor 4: Past Performance (15%)\nPrice will be evaluated for fairness and reasonableness but is not a weighted factor.",
-    tabCategory: "evaluation",
-    pageNumber: 4
-  },
-  {
-    sectionId: "instructions",
-    title: "SECTION L - INSTRUCTIONS TO OFFERORS",
-    content: "L.1 GENERAL INSTRUCTIONS\nOfferors are expected to examine the entire solicitation document. Failure to do so will be at the offeror's risk.\nL.2 PROPOSAL SUBMISSION REQUIREMENTS\nProposals must be submitted electronically via the SAM.gov portal no later than September 15, 2023, at 5:00 PM Eastern Time.\nL.3 PROPOSAL FORMAT\nThe proposal shall consist of two separate volumes:\nVolume I: Technical Proposal\nVolume II: Price Proposal\nL.4 PROPOSAL CONTENT\nVolume I should address all technical evaluation factors and be limited to 50 pages excluding resumes and past performance information.\nVolume II shall include a complete pricing breakdown structure for all CLINs and periods of performance.",
+    sectionId: "quote-prep",
+    title: "QUOTE PREPARATION INSTRUCTIONS",
+    content: "The purpose of this section is to provide instructions on how to prepare the quote. The information must be presented in a practical straightforward manner, providing concise delineation of the Quoter's ability to meet the requirements.\n\nQuoters are expected to conform to RFQ provisions and its protocols in all respects. In particular, the quote must be prepared in accordance with the instructions provided and all items/areas cited as required must be addressed. The level of detail should be adequate and concise. The quote should be prepared logically and coherently. All pages of each part must be appropriately numbered and identified with the name of the Quoter, the date, and the RFQ number.\n\nThe Government intends to issue multiple-award GSA Schedule Blanket Purchase Agreements (BPA) from this solicitation to the responsible Quoters whose quotes represent the best value to the Government in accordance with the criteria set forth in the Request for Quote (RFQ).\n\nThe Government reserves the right to reject any quote that does not comply with this document or RFQ Attachment E – Evaluation Criteria.",
     tabCategory: "instructions",
+    pageNumber: 1
+  },
+  {
+    sectionId: "quote-format",
+    title: "Quote Format",
+    content: "Quotes shall contain a table of contents and follow the instructions below. The Quote must include each volume concurrently as follows:",
+    tabCategory: "instructions",
+    pageNumber: 2
+  },
+  {
+    sectionId: "eval-approach",
+    title: "EVALUATION APPROACH",
+    content: "Quotes will be evaluated in accordance with the Evaluation Criteria. Award will be made to the responsible Quoter(s) whose quote(s) represent the Best Value to the Government. The evaluation process will be conducted in accordance with FAR 8.405-2(d). Evaluation factors are listed in descending order of importance.\n\nThe Government intends to evaluate proposals without discussions with Quoters (except clarifications as described in FAR 15.306(a)). Therefore, the Quoter's initial proposal must contain the Quoter's best terms. The Government reserves the right to conduct discussions if the Contracting Officer determines them to be necessary.",
+    tabCategory: "evaluation",
     pageNumber: 5
+  },
+  {
+    sectionId: "eval-criteria",
+    title: "EVALUATION CRITERIA",
+    content: "The Government will evaluate quotes based on the following evaluation factors:\n\n1. Technical Factor\n   - Technical Approach and Understanding\n   - Staffing Plan\n   - Corporate Experience\n   - Sample Task Orders\n\n2. Price Factor\n   - Reasonableness of proposed pricing\n   - Completeness of price quotation\n   - Total evaluated price",
+    tabCategory: "evaluation",
+    pageNumber: 5
+  },
+  {
+    sectionId: "statement-of-work",
+    title: "STATEMENT OF WORK",
+    content: "The contractor shall provide expert technical services to support the development, maintenance, configuration, and monitoring of Office of Human Resources (OHR) public-facing websites, intranet sites, and web applications. The contractor shall develop and maintain content, applications, and systems using various web technologies and platforms to improve the user experience, content strategy, content management, and search functionality for sites hosted in the Acquia Cloud environment.\n\nThe contractor shall perform the following tasks:\n\n1. Website Development and Maintenance\n2. Content Development, Strategy, and Management\n3. Search Functionality Enhancement\n4. System Integration\n5. User Experience and Interface Design\n6. Security Compliance\n7. Documentation and Training\n8. Project Management",
+    tabCategory: "pws",
+    pageNumber: 8
+  },
+  {
+    sectionId: "website-dev",
+    title: "Website Development and Maintenance",
+    content: "The contractor shall:\n\n1.1 Develop, maintain, and enhance CMS-based web platforms, including code, architecture, and infrastructure, with primary focus on Drupal 10.\n\n1.2 Migrate content from existing Drupal 7 sites to Drupal 10 as needed.\n\n1.3 Implement features and functionality to enhance user experience, including responsive design, improved navigation, and interactive elements.\n\n1.4 Establish and implement deployment methodologies for code and configuration changes, including quality assurance procedures.\n\n1.5 Perform periodic maintenance activities including security updates, module updates, and patches.\n\n1.6 Implement custom modules as needed to support specialized website functionality.",
+    tabCategory: "pws",
+    pageNumber: 8
+  },
+  {
+    sectionId: "content-dev",
+    title: "Content Development, Strategy, and Management",
+    content: "The contractor shall:\n\n2.1 Create and maintain an effective content strategy for OHR's digital presence.\n\n2.2 Develop and maintain content types, taxonomies, and web form solutions.\n\n2.3 Design and implement content workflows, including review and approval processes.\n\n2.4 Integrate content from various sources and ensure consistent presentation.\n\n2.5 Implement and maintain content governance policies.\n\n2.6 Provide expertise in information architecture, content organization, and navigation design.",
+    tabCategory: "pws",
+    pageNumber: 9
   }
 ];
 
+// Sample outline structure for the outline generation feature
 export const documentOutline: OutlineItem[] = [
   {
-    title: "SECTION A - SOLICITATION/CONTRACT FORM",
+    title: "1. Introduction",
     children: [
-      { title: "Solicitation Information" },
-      { title: "Contract Type" },
-      { title: "NAICS Code and Set-Aside" }
-    ]
+      { title: "1.1 Executive Summary" },
+      { title: "1.2 Company Background" },
+    ],
   },
   {
-    title: "SECTION B - SUPPLIES OR SERVICES AND PRICES/COSTS",
+    title: "2. Technical Approach",
     children: [
-      { title: "B.1 General" },
-      { title: "B.2 Contract Line Items" }
-    ]
-  },
-  {
-    title: "SECTION C - DESCRIPTION/SPECIFICATIONS/STATEMENT OF WORK",
-    children: [
-      { title: "C.1 Background" },
-      { title: "C.2 Scope" }
-    ]
-  },
-  {
-    title: "PERFORMANCE WORK STATEMENT (PWS)",
-    children: [
-      { title: "1.0 Purpose" },
-      { title: "2.0 Scope" },
+      { title: "2.1 Understanding of Requirements" },
+      { title: "2.2 Proposed Solution" },
       { 
-        title: "3.0 Specific Tasks",
+        title: "2.3 Implementation Plan",
         children: [
-          { title: "3.1 Help Desk Support" },
-          { title: "3.2 Network Administration" },
-          { title: "3.3 Cybersecurity Services" }
+          { title: "2.3.1 Timeline" },
+          { title: "2.3.2 Milestones" },
         ]
-      }
-    ]
+      },
+    ],
   },
   {
-    title: "SECTION L - INSTRUCTIONS TO OFFERORS",
+    title: "3. Management Approach",
     children: [
-      { title: "L.1 General Instructions" },
-      { title: "L.2 Proposal Submission Requirements" },
-      { title: "L.3 Proposal Format" },
-      { 
-        title: "L.4 Proposal Content",
-        children: [
-          { title: "L.4.1 Volume I - Technical Proposal" },
-          { title: "L.4.2 Volume II - Price Proposal" }
-        ]
-      }
-    ]
+      { title: "3.1 Project Management" },
+      { title: "3.2 Risk Management" },
+    ],
   },
   {
-    title: "SECTION M - EVALUATION CRITERIA",
+    title: "4. Past Performance",
     children: [
-      { title: "M.1 Evaluation Approach" },
-      { title: "M.2 Evaluation Factors" },
-      { title: "M.3 Factor Descriptions" }
-    ]
-  }
+      { title: "4.1 Relevant Experience" },
+      { title: "4.2 Customer References" },
+    ],
+  },
 ];
