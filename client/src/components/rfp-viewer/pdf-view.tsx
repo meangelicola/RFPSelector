@@ -267,7 +267,7 @@ const PdfView: FC<PdfViewProps> = ({
             <div 
               key={`page-${pageNum}`}
               id={`pdf-page-${pageNum}`}
-              className="pdf-page w-full max-w-4xl px-10 py-8 mx-6 mb-8 bg-white shadow-md relative page-break-container"
+              className="pdf-page w-full max-w-4xl px-10 py-8 mx-6 mb-8 bg-white shadow-md relative page-break-container font-times-roman"
               style={{ transform: `scale(${zoomLevel})`, transformOrigin: "top center" }}
             >
               {/* Page header for first page */}

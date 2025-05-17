@@ -242,7 +242,10 @@ const EditModal: FC<EditModalProps> = ({
   // Handle tab switching with confirmation for unsaved changes
   const handleTabSwitch = (newTab: string) => {
     if (hasUnsavedChanges) {
-      if (window.confirm(`Would you like to save your changes to the ${tabNames[selectedEditTab]} section?`)) {
+      // Create styled confirmation dialog instead of default browser alert
+      const confirmed = window.confirm(`Save your changes to the ${tabNames[selectedEditTab]} section?`);
+      
+      if (confirmed) {
         // Save the current tab changes
         handleSaveTab();
       } else {
@@ -254,6 +257,14 @@ const EditModal: FC<EditModalProps> = ({
     // Switch to the new tab
     prevTabRef.current = selectedEditTab;
     setSelectedEditTab(newTab);
+    
+    // Auto-scroll to first highlighted section after tab change
+    setTimeout(() => {
+      const firstHighlight = modalContentRef.current?.querySelector(`.highlight-${newTab}`);
+      if (firstHighlight) {
+        firstHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
   };
   
   // Reset changes for the current tab
@@ -400,6 +411,11 @@ const EditModal: FC<EditModalProps> = ({
                   suppressContentEditableWarning={true}
                   spellCheck={false}
                   onInput={(e) => e.preventDefault()} // Prevent actual editing
+                  style={{
+                    cursor: 'text',
+                    caretColor: 'blue',
+                    caretShape: 'bar'
+                  }}
                 >
                   {section.content.split("\n").map((paragraph, pIdx) => (
                     <div key={`${section.sectionId}-p-${pIdx}`} className="mb-3">
