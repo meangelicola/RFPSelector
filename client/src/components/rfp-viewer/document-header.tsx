@@ -6,7 +6,7 @@ const DocumentHeader: FC = () => {
       <div className="flex items-center">
         <div className="flex items-center mr-4">
           <svg
-            className="h-8 w-8 text-aiselect-primary mr-2"
+            className="h-8 w-8 text-blue-600 mr-2"
             viewBox="0 0 24 24"
             fill="currentColor"
             xmlns="http://www.w3.org/2000/svg"
