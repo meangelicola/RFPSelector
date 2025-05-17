@@ -115,9 +115,12 @@ const ExtractedTextView: FC<ExtractedTextViewProps> = ({
             onClick={() => setEditMode(!editMode)}
             className={`text-xs px-3 py-1 rounded transition-colors ${
               editMode 
-                ? "bg-blue-600 text-white" 
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                ? "bg-blue-600 text-white border-2 border-red-500 shadow-red" 
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-red-500 shadow-red"
             }`}
+            style={{ 
+              boxShadow: "0 0 5px rgba(255, 0, 0, 0.5)",
+            }}
           >
             {editMode ? "Exit Edit Mode" : "Edit Mode"}
           </button>

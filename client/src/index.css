@@ -135,12 +135,84 @@
   font-weight: bold;
 }
 
+/* Tab Styling */
+.tab-instructions {
+  border-bottom: 3px solid transparent;
+}
+
+.tab-instructions:hover {
+  border-bottom-color: #4B0082;
+  background-color: rgba(75, 0, 130, 0.05);
+}
+
+.active-tab-instructions {
+  background-color: rgba(75, 0, 130, 0.1);
+  border-bottom: 4px solid #4B0082 !important;
+  font-weight: bold;
+  color: #4B0082 !important;
+}
+
+.tab-pws {
+  border-bottom: 3px solid transparent;
+}
+
+.tab-pws:hover {
+  border-bottom-color: #FF1493;
+  background-color: rgba(255, 20, 147, 0.05);
+}
+
+.active-tab-pws {
+  background-color: rgba(255, 20, 147, 0.1);
+  border-bottom: 4px solid #FF1493 !important;
+  font-weight: bold;
+  color: #FF1493 !important;
+}
+
+.tab-evaluation {
+  border-bottom: 3px solid transparent;
+}
+
+.tab-evaluation:hover {
+  border-bottom-color: #FF8C00;
+  background-color: rgba(255, 140, 0, 0.05);
+}
+
+.active-tab-evaluation {
+  background-color: rgba(255, 140, 0, 0.1);
+  border-bottom: 4px solid #FF8C00 !important;
+  font-weight: bold;
+  color: #FF8C00 !important;
+}
+
 /* Page breaks styling */
 .page-break-container {
   position: relative;
   page-break-inside: avoid;
   margin-bottom: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-family: "Times New Roman", Times, serif;
+}
+
+.pdf-page h1,
+.pdf-page h2,
+.pdf-page h3,
+.pdf-page h4,
+.pdf-page h5,
+.pdf-page h6,
+.pdf-page p,
+.pdf-page div,
+.pdf-page span {
+  font-family: "Times New Roman", Times, serif;
+}
+
+.pdf-page .pdf-content {
+  font-family: "Times New Roman", Times, serif;
+  line-height: 1.5;
+}
+
+.pdf-page h3 {
+  font-family: "Times New Roman", Times, serif;
+  font-weight: bold;
 }
 
 .page-break-container::after {

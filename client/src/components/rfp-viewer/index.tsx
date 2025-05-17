@@ -31,9 +31,34 @@ const RfpViewer: FC = () => {
   // Document functions
   const { saveChanges, updateHighlightsForTab, generatedOutline } = useDocumentViewer();
   
-  // Update highlights when active tab changes
+  // Update highlights when active tab changes and auto-scroll to relevant section
   useEffect(() => {
     updateHighlightsForTab(activeTab);
+    
+    // Auto-scroll to first relevant section after a short delay to allow rendering
+    if (activeTab !== 'fullDocument') {
+      setTimeout(() => {
+        // Get first highlighted section for this tab
+        const leftPanelSelector = `.highlight-${activeTab}`;
+        const rightPanelSelector = `.highlight-${activeTab}`;
+        
+        // Left panel (extracted text view)
+        const leftPanel = document.getElementById('extracted-text-content');
+        const leftHighlight = document.querySelector(leftPanelSelector);
+        
+        if (leftPanel && leftHighlight) {
+          leftHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        // Right panel (PDF view)
+        const rightPanel = document.getElementById('pdf-view-content');
+        const rightHighlight = document.querySelector(rightPanelSelector);
+        
+        if (rightPanel && rightHighlight) {
+          rightHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    }
   }, [activeTab, updateHighlightsForTab]);
   
   // Calculate total pages based on the highest page number in content
