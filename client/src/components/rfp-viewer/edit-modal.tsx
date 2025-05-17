@@ -1,4 +1,4 @@
-import { FC, useState, useEffect, useRef } from "react";
+import { FC, useState, useEffect, useRef, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { rfpContent, DocumentSection } from "@/data/rfp-document";
 
@@ -66,29 +66,41 @@ const EditModal: FC<EditModalProps> = ({
     scrollToFirstHighlight();
   }, [selectedEditTab]);
   
-  // Show visual animation for selection
+  // Show visual animation for selection that resembles word processor behavior
   const showSelectionAnimation = (rect: DOMRect) => {
     // Create animation element
     const animation = document.createElement('div');
     animation.className = 'selection-animation';
+    animation.style.position = 'absolute';
     animation.style.left = `${rect.left}px`;
     animation.style.top = `${rect.top}px`;
     animation.style.width = `${rect.width}px`;
     animation.style.height = `${rect.height}px`;
+    animation.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+    animation.style.border = '2px solid #007bff';
+    animation.style.borderRadius = '2px';
+    animation.style.pointerEvents = 'none';
+    animation.style.zIndex = '9999';
     
     // Add to document
     document.body.appendChild(animation);
     
-    // Remove after animation completes
-    setTimeout(() => {
+    // Animate with transition
+    animation.animate([
+      { opacity: 1, transform: 'scale(1.05)' },
+      { opacity: 0, transform: 'scale(1)' }
+    ], {
+      duration: 400,
+      easing: 'ease-out'
+    }).onfinish = () => {
       if (document.body.contains(animation)) {
         document.body.removeChild(animation);
       }
-    }, 400); // Match the animation duration
+    };
   };
   
   // Handle character-level selection with improved visual feedback
-  const handleTextSelection = () => {
+  const handleTextSelection = useCallback(() => {
     const selection = window.getSelection();
     if (!selection || selection.isCollapsed) return;
     
@@ -132,12 +144,12 @@ const EditModal: FC<EditModalProps> = ({
     // Apply visual highlighting
     highlightSelection(range, selectedEditTab);
     
-    // Show visual selection animation
+    // Show visual selection animation that resembles word processor behavior
     showSelectionAnimation(rect);
     
     // Clear the selection
     selection.removeAllRanges();
-  };
+  }, [selectedEditTab]);
   
   // Calculate text node offset relative to content element
   const getTextNodeOffset = (

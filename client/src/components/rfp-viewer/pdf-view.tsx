@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { rfpContent, DocumentSection } from "@/data/rfp-document";
 import { useSynchronizedHighlight } from "@/hooks/use-synchronized-highlight";
