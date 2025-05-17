@@ -39,11 +39,60 @@ const EditModal: FC<EditModalProps> = ({
   
   // Initialize showing the current tab sections
   useEffect(() => {
+    // Pre-highlight sections based on selectedParagraphs
+    const preHighlightSections = () => {
+      if (!contentRef.current) return;
+      
+      // Clear existing highlights first
+      contentRef.current.querySelectorAll('.highlight-instructions, .highlight-evaluation, .highlight-pws')
+        .forEach(el => {
+          const parent = el.parentNode;
+          if (parent) {
+            const text = el.textContent || '';
+            const textNode = document.createTextNode(text);
+            parent.replaceChild(textNode, el);
+          }
+        });
+      
+      // Apply highlights for sections that are selected
+      Object.keys(selectedParagraphs).forEach(sectionId => {
+        if (selectedParagraphs[sectionId]) {
+          const sectionElement = document.getElementById(`edit-section-${sectionId}`);
+          if (sectionElement) {
+            // Find the section category to use the right highlight color
+            const section = rfpContent.find(s => s.sectionId === sectionId);
+            if (section) {
+              // Get the content element within this section
+              const contentElement = sectionElement.querySelector('[data-section-id]');
+              if (contentElement) {
+                // Highlight the entire first paragraph or first sentence
+                const firstParagraph = contentElement.querySelector('div');
+                if (firstParagraph && firstParagraph.textContent) {
+                  // Create a simple highlight span
+                  const span = document.createElement('span');
+                  span.className = `highlight-${section.tabCategory}`;
+                  span.dataset.sectionId = sectionId;
+                  span.textContent = firstParagraph.textContent;
+                  
+                  // Replace the first paragraph with the highlighted version
+                  firstParagraph.textContent = '';
+                  firstParagraph.appendChild(span);
+                }
+              }
+            }
+          }
+        }
+      });
+    };
+    
+    // Call the highlight function after a slight delay to ensure DOM is ready
+    setTimeout(preHighlightSections, 50);
+    
+    // Scroll to first section of selected tab
     const tabSections = rfpContent.filter(section => 
       section.tabCategory === selectedEditTab
     );
     
-    // Scroll to first section of selected tab
     if (tabSections.length > 0 && contentRef.current) {
       const firstSection = document.getElementById(`edit-section-${tabSections[0].sectionId}`);
       if (firstSection) {
@@ -52,7 +101,7 @@ const EditModal: FC<EditModalProps> = ({
         }, 100);
       }
     }
-  }, [selectedEditTab]);
+  }, [selectedEditTab, selectedParagraphs]);
   
   // Handle tab switch with save confirmation
   const handleTabSwitch = (newTab: string) => {
@@ -131,9 +180,10 @@ const EditModal: FC<EditModalProps> = ({
   
   // Start highlighter mode on mouse down
   const startHighlighting = (e: React.MouseEvent) => {
+    // Set the highlighting flag
     isHighlightingRef.current = true;
     
-    // Add highlighter cursor to the entire document during highlighting
+    // Add highlighter cursor to the entire document
     document.body.classList.add('highlighter-cursor');
     
     // Show instructions about highlighting
@@ -155,15 +205,64 @@ const EditModal: FC<EditModalProps> = ({
       return;
     }
     
+    // Get the selection range
     const range = selection.getRangeAt(0);
     
     // Get coordinates for the animation
     const rect = range.getBoundingClientRect();
     
-    // Get the section this belongs to
-    const target = e.currentTarget as HTMLElement;
-    const sectionId = target.dataset.sectionId || "";
-    const tabCategory = target.dataset.tabCategory || selectedEditTab;
+    // Find the closest section container that has data attributes
+    let currentNode = range.startContainer;
+    let sectionDiv = null;
+    
+    // Traverse up the DOM to find the section container
+    while (currentNode && !sectionDiv) {
+      // Check if this is an element node
+      if (currentNode.nodeType === Node.ELEMENT_NODE) {
+        // Check if it has dataset property (is an HTMLElement)
+        const element = currentNode as HTMLElement;
+        if (element.dataset && element.dataset.sectionId) {
+          sectionDiv = element;
+          break;
+        }
+      }
+      
+      // Move up to parent
+      if (currentNode.parentNode) {
+        currentNode = currentNode.parentNode;
+      } else {
+        break;
+      }
+    }
+    
+    // If we couldn't find a section container with data attributes, try finding from the event target
+    if (!sectionDiv) {
+      let target = e.target as HTMLElement;
+      
+      // Traverse up from the event target
+      while (target && !target.dataset.sectionId) {
+        if (target.parentElement) {
+          target = target.parentElement;
+        } else {
+          break;
+        }
+      }
+      
+      if (target && target.dataset.sectionId) {
+        sectionDiv = target;
+      }
+    }
+    
+    // If we still couldn't find a section, use the event's currentTarget
+    if (!sectionDiv) {
+      sectionDiv = e.currentTarget as HTMLElement;
+    }
+    
+    // Get section ID and category
+    const sectionId = sectionDiv?.dataset.sectionId || "";
+    const tabCategory = sectionDiv?.dataset.tabCategory || selectedEditTab;
+    
+    console.log("Highlighting in section:", sectionId, "category:", tabCategory);
     
     // Create a highlight span
     const span = document.createElement('span');
@@ -181,6 +280,35 @@ const EditModal: FC<EditModalProps> = ({
       setHasUnsavedChanges(true);
     } catch (error) {
       console.error("Failed to highlight text:", error);
+      
+      // Try alternative approach for complex selections
+      try {
+        // Extract the text
+        const selectedText = range.toString();
+        
+        // Create a document fragment
+        const fragment = document.createDocumentFragment();
+        
+        // Create a highlight span with the text
+        const highlightSpan = document.createElement('span');
+        highlightSpan.className = `highlight-${tabCategory}`;
+        highlightSpan.dataset.sectionId = sectionId;
+        highlightSpan.textContent = selectedText;
+        
+        fragment.appendChild(highlightSpan);
+        
+        // Delete the range content and insert our fragment
+        range.deleteContents();
+        range.insertNode(fragment);
+        
+        // Show animation
+        showHighlighterAnimation(rect);
+        
+        // Mark as having changes
+        setHasUnsavedChanges(true);
+      } catch (fallbackError) {
+        console.error("Even fallback highlighting failed:", fallbackError);
+      }
     }
     
     // Clear the selection

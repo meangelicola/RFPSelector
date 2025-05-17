@@ -314,7 +314,13 @@
 
 /* Highlighter cursor */
 .highlighter-cursor {
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="yellow" stroke="%23ff9900" stroke-width="2"><path d="M9.3 12.4L9.28 20M14.7 12.4L14.72 20M20 8.34L16 4.4L7.6 14.4L8 20L16 20L16.4 14.4L20 8.34z"/></svg>'), auto !important;
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="yellow" stroke="%23ff9900" stroke-width="2"><path d="M9.3 12.4L9.28 20M14.7 12.4L14.72 20M20 8.34L16 4.4L7.6 14.4L8 20L16 20L16.4 14.4L20 8.34z"/></svg>'), auto !important;
+}
+
+.editable-document {
+  user-select: text;
+  cursor: text;
+  line-height: 1.5;
 }
 
 @keyframes highlighterSwipe {
