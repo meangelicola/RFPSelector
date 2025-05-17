@@ -4,7 +4,7 @@ import TabNavigation from './tab-navigation';
 import ActionBar from './action-bar';
 import ExtractedTextView from './extracted-text-view';
 import PdfView from './pdf-view';
-import EditModal from './edit-modal-fixed';
+import EditModal from './highlight-edit-modal';
 import OutlineModal from './outline-modal';
 import { useSynchronizedHighlight } from '@/hooks/use-synchronized-highlight';
 import { useDocumentViewer } from '@/hooks/use-document-viewer';
