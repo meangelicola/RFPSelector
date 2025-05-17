@@ -42,17 +42,21 @@ const RfpViewer: FC = () => {
         const tabSections = rfpContent.filter(section => section.tabCategory === activeTab);
         
         if (tabSections.length > 0) {
-          // Get the first section ID for this tab
-          const firstSectionId = tabSections[0].sectionId;
+          // Get the first section with this tab category
+          const firstTabSection = tabSections[0];
           
           // Left panel (extracted text view) - scroll to the appropriate content
           const leftPanelHighlight = document.querySelector(`#extracted-text-content .highlight-${activeTab}`);
           if (leftPanelHighlight) {
-            leftPanelHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Scroll the left panel to the highlighted section
+            leftPanelHighlight.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'center' 
+            });
           }
           
           // Right panel (PDF view) - find the page number for this section
-          const sectionPageNumber = tabSections[0].pageNumber;
+          const sectionPageNumber = firstTabSection.pageNumber;
           
           // Find the page element in the PDF view
           const pdfPageElement = document.getElementById(`pdf-page-${sectionPageNumber}`);
@@ -65,12 +69,27 @@ const RfpViewer: FC = () => {
                 behavior: 'smooth'
               });
               
+              // Find highlighted content within that page
+              const rightPanelHighlight = pdfPageElement.querySelector(`.highlight-${activeTab}`);
+              if (rightPanelHighlight) {
+                // Calculate relative position within the page
+                const highlightTop = rightPanelHighlight.getBoundingClientRect().top;
+                const pageTop = pdfPageElement.getBoundingClientRect().top;
+                const offset = highlightTop - pageTop;
+                
+                // Adjust scroll position to center the highlight
+                pdfViewContent.scrollTo({
+                  top: pdfPageElement.offsetTop + offset - (pdfViewContent.clientHeight / 2),
+                  behavior: 'smooth'
+                });
+              }
+              
               // Set the current page
               setCurrentPage(sectionPageNumber);
             }
           }
         }
-      }, 200); // Slightly longer delay to ensure all content is rendered
+      }, 300); // Slightly longer delay to ensure all content is rendered
     }
   }, [activeTab, updateHighlightsForTab, rfpContent]);
   
