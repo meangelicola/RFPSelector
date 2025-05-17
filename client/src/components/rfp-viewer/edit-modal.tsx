@@ -2,6 +2,7 @@ import { FC, useState, useEffect, useRef, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { rfpContent, DocumentSection } from "@/data/rfp-document";
 
+// Define interface for character-level selection
 interface CharacterSelection {
   sectionId: string;
   startIndex: number;
@@ -17,6 +18,7 @@ interface EditModalProps {
   saveChanges: () => void;
 }
 
+// Tab names for user-friendly display
 const tabNames: Record<string, string> = {
   'instructions': 'Instructions to Offeror',
   'evaluation': 'Evaluation Criteria',
@@ -30,17 +32,24 @@ const EditModal: FC<EditModalProps> = ({
   setSelectedParagraphs,
   saveChanges,
 }) => {
-  // Tab navigation within the edit modal
+  // Initialize to the current active tab, defaulting to instructions if fullDocument is selected
   const [selectedEditTab, setSelectedEditTab] = useState(activeTab === "fullDocument" ? "instructions" : activeTab);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [selections, setSelections] = useState<CharacterSelection[]>([]);
   
-  // Store previous tab for confirmation before switching
+  // Store selections by tab to maintain separate highlighting state for each tab
+  const [selectionsByTab, setSelectionsByTab] = useState<{
+    [tab: string]: CharacterSelection[]
+  }>({
+    'instructions': [],
+    'evaluation': [],
+    'pws': []
+  });
+  
+  // Refs for tracking and manipulating DOM elements
   const prevTabRef = useRef(selectedEditTab);
-  // Refs for scrolling and content management
   const modalContentRef = useRef<HTMLDivElement>(null);
   
-  // Get all document sections for the selected edit tab
+  // Filter document sections for the current tab
   const filteredContent = rfpContent.filter(
     (section) => section.tabCategory === selectedEditTab
   );
@@ -66,7 +75,7 @@ const EditModal: FC<EditModalProps> = ({
     scrollToFirstHighlight();
   }, [selectedEditTab]);
   
-  // Show visual animation for selection that resembles word processor behavior
+  // Create visual animation for text selection that resembles word processor behavior
   const showSelectionAnimation = (rect: DOMRect) => {
     // Create animation element
     const animation = document.createElement('div');
@@ -76,11 +85,12 @@ const EditModal: FC<EditModalProps> = ({
     animation.style.top = `${rect.top}px`;
     animation.style.width = `${rect.width}px`;
     animation.style.height = `${rect.height}px`;
-    animation.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
-    animation.style.border = '2px solid #007bff';
+    animation.style.backgroundColor = 'rgba(65, 105, 225, 0.2)';
+    animation.style.border = '3px solid #007bff';
     animation.style.borderRadius = '2px';
     animation.style.pointerEvents = 'none';
     animation.style.zIndex = '9999';
+    animation.style.boxShadow = '0 0 8px rgba(65, 105, 225, 0.4)';
     
     // Add to document
     document.body.appendChild(animation);
@@ -88,9 +98,10 @@ const EditModal: FC<EditModalProps> = ({
     // Animate with transition
     animation.animate([
       { opacity: 1, transform: 'scale(1.05)' },
+      { opacity: 0.7, transform: 'scale(1.02)' },
       { opacity: 0, transform: 'scale(1)' }
     ], {
-      duration: 400,
+      duration: 500,
       easing: 'ease-out'
     }).onfinish = () => {
       if (document.body.contains(animation)) {
@@ -99,7 +110,7 @@ const EditModal: FC<EditModalProps> = ({
     };
   };
   
-  // Handle character-level selection with improved visual feedback
+  // Handle character-level selection with visual feedback
   const handleTextSelection = useCallback(() => {
     const selection = window.getSelection();
     if (!selection || selection.isCollapsed) return;
@@ -137,14 +148,18 @@ const EditModal: FC<EditModalProps> = ({
       text: selectedText
     };
     
-    // Add selection to the state
-    setSelections(prev => [...prev, newSelection]);
+    // Add selection to the state for current tab
+    setSelectionsByTab(prev => ({
+      ...prev,
+      [selectedEditTab]: [...prev[selectedEditTab], newSelection]
+    }));
+    
     setHasUnsavedChanges(true);
     
     // Apply visual highlighting
     highlightSelection(range, selectedEditTab);
     
-    // Show visual selection animation that resembles word processor behavior
+    // Show visual selection animation
     showSelectionAnimation(rect);
     
     // Clear the selection
@@ -184,7 +199,6 @@ const EditModal: FC<EditModalProps> = ({
       range.surroundContents(span);
     } catch (e) {
       console.error('Cannot highlight selection:', e);
-      // Handle complex selections that span multiple nodes
       handleComplexSelection(range, category);
     }
   };
@@ -192,10 +206,6 @@ const EditModal: FC<EditModalProps> = ({
   // Handle complex selections that span multiple nodes
   const handleComplexSelection = (range: Range, category: string) => {
     try {
-      // Clone the range to avoid modifying the original
-      const clonedRange = range.cloneRange();
-      
-      // Create a new range for each text node in the selection
       const startNode = range.startContainer;
       const endNode = range.endContainer;
       const startOffset = range.startOffset;
@@ -211,7 +221,6 @@ const EditModal: FC<EditModalProps> = ({
         newRange.setEnd(startNode, endOffset);
         newRange.surroundContents(span);
       } else {
-        // Complex case - fragmenting selection not supported in this prototype
         console.log("Complex selection across multiple nodes not supported");
       }
     } catch (e) {
@@ -242,15 +251,14 @@ const EditModal: FC<EditModalProps> = ({
   // Handle tab switching with confirmation for unsaved changes
   const handleTabSwitch = (newTab: string) => {
     if (hasUnsavedChanges) {
-      // Create styled confirmation dialog instead of default browser alert
       const confirmed = window.confirm(`Save your changes to the ${tabNames[selectedEditTab]} section?`);
       
       if (confirmed) {
         // Save the current tab changes
-        handleSaveTab();
+        handleSaveTab(selectedEditTab);
       } else {
         // Discard changes
-        resetTabChanges();
+        resetTabChanges(selectedEditTab);
       }
     }
     
@@ -267,16 +275,16 @@ const EditModal: FC<EditModalProps> = ({
     }, 100);
   };
   
-  // Reset changes for the current tab
-  const resetTabChanges = () => {
+  // Reset changes for a specific tab
+  const resetTabChanges = (tab: string) => {
     // Reset selections for current tab
-    setSelections(prev => prev.filter(s => {
-      const section = rfpContent.find(sec => sec.sectionId === s.sectionId);
-      return section?.tabCategory !== selectedEditTab;
+    setSelectionsByTab(prev => ({
+      ...prev,
+      [tab]: []
     }));
     
     // Reset highlights in DOM
-    document.querySelectorAll(`.highlight-${selectedEditTab}`).forEach(el => {
+    document.querySelectorAll(`.highlight-${tab}`).forEach(el => {
       const parent = el.parentNode;
       if (parent) {
         const text = el.textContent || '';
@@ -288,31 +296,34 @@ const EditModal: FC<EditModalProps> = ({
     setHasUnsavedChanges(false);
   };
   
-  // Save changes for the current tab
-  const handleSaveTab = () => {
-    // Store selections for current tab
+  // Save changes for the specified tab
+  const handleSaveTab = (tab: string) => {
+    // Store selections for tab
     setHasUnsavedChanges(false);
     
     // Display success message
-    showSaveConfirmation(tabNames[selectedEditTab]);
+    showSaveConfirmation(tabNames[tab]);
   };
   
+  // Handle cancel button click
   const handleCancel = () => {
     // Confirm if there are unsaved changes
     if (hasUnsavedChanges) {
-      if (!window.confirm("You have unsaved changes. Are you sure you want to exit without saving?")) {
+      const confirmed = window.confirm("You have unsaved changes. Are you sure you want to exit without saving?");
+      if (!confirmed) {
         return;
       }
     }
     setShowEditModal(false);
   };
 
+  // Handle save button click
   const handleSave = () => {
-    // Convert selections to paragraph highlights
+    // Convert all selections to paragraph highlights
     const paragraphSelections: { [key: string]: boolean } = {};
     
-    // Mark sections with selections
-    selections.forEach(selection => {
+    // Combine selections from all tabs
+    Object.values(selectionsByTab).flat().forEach(selection => {
       paragraphSelections[selection.sectionId] = true;
     });
     
@@ -334,9 +345,6 @@ const EditModal: FC<EditModalProps> = ({
         const textNode = document.createTextNode(text);
         parent.replaceChild(textNode, target);
         setHasUnsavedChanges(true);
-        
-        // Update selections state (would need to match based on text content and position)
-        // This is simplified for the prototype
       }
     }
   };
@@ -354,7 +362,7 @@ const EditModal: FC<EditModalProps> = ({
               </p>
             </div>
             <div className="text-sm bg-blue-50 px-3 py-1 rounded border border-blue-200">
-              <span className="font-medium">{selections.length}</span> selection{selections.length !== 1 ? 's' : ''} made
+              <span className="font-medium">{selectionsByTab[selectedEditTab].length}</span> selection{selectionsByTab[selectedEditTab].length !== 1 ? 's' : ''} made
             </div>
           </div>
           
@@ -390,7 +398,7 @@ const EditModal: FC<EditModalProps> = ({
           </div>
         </div>
 
-        {/* Section content with improved selection handling */}
+        {/* Document content with character-level selection */}
         <div 
           ref={modalContentRef}
           className="overflow-y-auto flex-1 p-6 custom-scrollbar"
@@ -428,7 +436,7 @@ const EditModal: FC<EditModalProps> = ({
           </div>
         </div>
 
-        {/* Footer with action buttons */}
+        {/* Footer with save and cancel buttons */}
         <div className="border-t border-gray-200 p-4 flex justify-between items-center">
           <div className="text-sm text-gray-600">
             Select specific text by highlighting it. Click on highlighted text to remove the highlight.
