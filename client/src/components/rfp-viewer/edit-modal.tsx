@@ -49,26 +49,31 @@ const EditModal: FC<EditModalProps> = ({
   const prevTabRef = useRef(selectedEditTab);
   const modalContentRef = useRef<HTMLDivElement>(null);
   
-  // Filter document sections for the current tab
-  const filteredContent = rfpContent.filter(
-    (section) => section.tabCategory === selectedEditTab
-  );
+  // Include all RFP content in every tab
+  // We'll show all sections but highlight only those relevant to the current tab
+  const allContent = rfpContent;
   
   // Auto-scroll to first highlighted section when modal opens or tab changes
   useEffect(() => {
     const scrollToFirstHighlight = () => {
       if (modalContentRef.current) {
-        setTimeout(() => {
-          const highlightClass = `highlight-${selectedEditTab}`;
-          const firstHighlight = modalContentRef.current?.querySelector(`.${highlightClass}`);
+        // Find the first section that belongs to this tab
+        const tabSections = rfpContent.filter(section => section.tabCategory === selectedEditTab);
+        
+        if (tabSections.length > 0) {
+          const firstSectionId = tabSections[0].sectionId;
+          const sectionElement = modalContentRef.current.querySelector(`#section-${firstSectionId}`);
           
-          if (firstHighlight) {
-            firstHighlight.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'center' 
-            });
+          if (sectionElement) {
+            // Scroll to the section element with a bit of offset for better visibility
+            setTimeout(() => {
+              sectionElement.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+              });
+            }, 100);
           }
-        }, 100); // Small delay to ensure DOM is updated
+        }
       }
     };
     
@@ -110,7 +115,7 @@ const EditModal: FC<EditModalProps> = ({
     };
   };
   
-  // Handle character-level selection with visual feedback
+  // Handle text highlighting like a physical highlighter
   const handleTextSelection = useCallback(() => {
     const selection = window.getSelection();
     if (!selection || selection.isCollapsed) return;
@@ -132,6 +137,9 @@ const EditModal: FC<EditModalProps> = ({
     const sectionId = sectionDiv.getAttribute('data-section-id');
     if (!sectionId) return;
     
+    // Get the tab category from the parent container for proper color assignment
+    const sectionTabCategory = sectionDiv.getAttribute('data-tab-category') || selectedEditTab;
+    
     // Get the selected text
     const selectedText = selection.toString();
     if (!selectedText.trim()) return;
@@ -140,7 +148,7 @@ const EditModal: FC<EditModalProps> = ({
     const contentElement = sectionDiv.querySelector('.section-content');
     if (!contentElement) return;
     
-    // Create a new selection
+    // Create a new selection record 
     const newSelection: CharacterSelection = {
       sectionId,
       startIndex: getTextNodeOffset(range.startContainer, range.startOffset, contentElement),
@@ -148,21 +156,26 @@ const EditModal: FC<EditModalProps> = ({
       text: selectedText
     };
     
-    // Add selection to the state for current tab
-    setSelectionsByTab(prev => ({
-      ...prev,
-      [selectedEditTab]: [...prev[selectedEditTab], newSelection]
-    }));
+    // Track this selection in the appropriate tab's state
+    setSelectionsByTab(prev => {
+      // Get correct tab category to store this highlight under
+      const tabKey = sectionTabCategory;
+      
+      return {
+        ...prev,
+        [tabKey]: [...prev[tabKey], newSelection]
+      };
+    });
     
     setHasUnsavedChanges(true);
     
-    // Apply visual highlighting
-    highlightSelection(range, selectedEditTab);
+    // Apply visual highlighting with the color for the section's original tab
+    highlightSelection(range, sectionTabCategory);
     
-    // Show visual selection animation
+    // Show visual selection animation like a real highlighter
     showSelectionAnimation(rect);
     
-    // Clear the selection
+    // Clear the selection to prepare for the next highlighting action
     selection.removeAllRanges();
   }, [selectedEditTab]);
   
@@ -191,12 +204,23 @@ const EditModal: FC<EditModalProps> = ({
     return totalOffset;
   };
   
-  // Apply visual highlighting to selected text
+  // Apply visual highlighting to selected text like a physical highlighter
   const highlightSelection = (range: Range, category: string) => {
     const span = document.createElement('span');
-    span.className = `highlight-${category}`;
+    span.className = `custom-highlight-${category}`;
+    
     try {
+      // Apply the highlight
       range.surroundContents(span);
+      
+      // Apply a transition effect for the highlight
+      span.style.transition = "background-color 0.3s ease";
+      span.style.backgroundColor = "rgba(255, 255, 0, 0.6)";
+      
+      // Fade to the actual highlight color
+      setTimeout(() => {
+        span.style.backgroundColor = "";
+      }, 300);
     } catch (e) {
       console.error('Cannot highlight selection:', e);
       handleComplexSelection(range, category);
@@ -357,9 +381,15 @@ const EditModal: FC<EditModalProps> = ({
           <div className="flex px-6 py-3 justify-between items-center">
             <div>
               <h2 className="text-xl font-semibold text-gray-800">Edit Selections</h2>
-              <p className="text-sm text-gray-600 mt-1">
-                Select text to add to your proposal
-              </p>
+              <div className="text-sm text-gray-600 mt-1 flex items-center">
+                <span className="mr-2">Use highlighter to select text:</span>
+                <div className="flex items-center bg-yellow-100 border border-yellow-300 rounded px-3 py-1 text-xs">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                    <path d="M9.3 12.4L9.28 20M14.7 12.4L14.72 20M20 8.34L16 4.4L7.6 14.4L8 20L16 20L16.4 14.4L20 8.34z"/>
+                  </svg>
+                  <span>Select text to highlight. Click highlighted text to remove.</span>
+                </div>
+              </div>
             </div>
             <div className="text-sm bg-blue-50 px-3 py-1 rounded border border-blue-200">
               <span className="font-medium">{selectionsByTab[selectedEditTab].length}</span> selection{selectionsByTab[selectedEditTab].length !== 1 ? 's' : ''} made
@@ -404,35 +434,54 @@ const EditModal: FC<EditModalProps> = ({
           className="overflow-y-auto flex-1 p-6 custom-scrollbar"
         >
           <div className="space-y-8">
-            {filteredContent.map((section) => (
-              <div
-                key={section.sectionId}
-                data-section-id={section.sectionId}
-                className="p-4 border rounded"
-              >
-                <h3 className="font-bold text-gray-900 mb-4 uppercase">{section.title}</h3>
-                <div 
-                  className="text-sm section-content editable-document" 
-                  onMouseUp={handleTextSelection}
-                  onClick={handleHighlightClick}
-                  contentEditable={true}
-                  suppressContentEditableWarning={true}
-                  spellCheck={false}
-                  onInput={(e) => e.preventDefault()} // Prevent actual editing
-                  style={{
-                    cursor: 'text',
-                    caretColor: 'blue',
-                    caretShape: 'bar'
-                  }}
+            {rfpContent.map((section: DocumentSection) => {
+              // Determine if this section belongs to the current tab
+              const isCurrentTabSection = section.tabCategory === selectedEditTab;
+              
+              return (
+                <div
+                  key={section.sectionId}
+                  data-section-id={section.sectionId}
+                  data-tab-category={section.tabCategory}
+                  className={`p-4 border rounded ${isCurrentTabSection ? 'border-2 border-gray-300' : 'border border-gray-200'}`}
+                  id={`section-${section.sectionId}`}
                 >
-                  {section.content.split("\n").map((paragraph, pIdx) => (
-                    <div key={`${section.sectionId}-p-${pIdx}`} className="mb-3">
-                      {paragraph}
-                    </div>
-                  ))}
+                  <h3 className={`font-bold mb-4 uppercase ${isCurrentTabSection ? 'text-gray-900' : 'text-gray-600'}`}>
+                    {section.title}
+                    {isCurrentTabSection && 
+                      <span className="ml-2 text-xs font-normal bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                        Current Tab Section
+                      </span>
+                    }
+                  </h3>
+                  <div 
+                    className="text-sm section-content editable-document" 
+                    onMouseDown={(e) => {
+                      // Set cursor to highlighter
+                      const target = e.currentTarget;
+                      target.style.cursor = 'url(data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="%23ffff00" stroke-width="2"><path d="M9.3 12.4L9.28 20M14.7 12.4L14.72 20M20 8.34L16 4.4L7.6 14.4L8 20L16 20L16.4 14.4L20 8.34z"/></svg>), auto';
+                    }}
+                    onMouseUp={handleTextSelection}
+                    onClick={handleHighlightClick}
+                    contentEditable={true}
+                    suppressContentEditableWarning={true}
+                    spellCheck={false}
+                    onInput={(e) => e.preventDefault()} // Prevent actual editing
+                    style={{
+                      cursor: 'text',
+                      caretColor: 'blue',
+                      caretShape: 'bar'
+                    }}
+                  >
+                    {section.content.split("\n").map((paragraph: string, pIdx: number) => (
+                      <div key={`${section.sectionId}-p-${pIdx}`} className="mb-3">
+                        {paragraph}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 

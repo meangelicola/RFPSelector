@@ -38,28 +38,41 @@ const RfpViewer: FC = () => {
     // Auto-scroll to first relevant section after a short delay to allow rendering
     if (activeTab !== 'fullDocument') {
       setTimeout(() => {
-        // Get first highlighted section for this tab
-        const leftPanelSelector = `.highlight-${activeTab}`;
-        const rightPanelSelector = `.highlight-${activeTab}`;
+        // Find all sections belonging to the current tab
+        const tabSections = rfpContent.filter(section => section.tabCategory === activeTab);
         
-        // Left panel (extracted text view)
-        const leftPanel = document.getElementById('extracted-text-content');
-        const leftHighlight = document.querySelector(leftPanelSelector);
-        
-        if (leftPanel && leftHighlight) {
-          leftHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (tabSections.length > 0) {
+          // Get the first section ID for this tab
+          const firstSectionId = tabSections[0].sectionId;
+          
+          // Left panel (extracted text view) - scroll to the appropriate content
+          const leftPanelHighlight = document.querySelector(`#extracted-text-content .highlight-${activeTab}`);
+          if (leftPanelHighlight) {
+            leftPanelHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+          
+          // Right panel (PDF view) - find the page number for this section
+          const sectionPageNumber = tabSections[0].pageNumber;
+          
+          // Find the page element in the PDF view
+          const pdfPageElement = document.getElementById(`pdf-page-${sectionPageNumber}`);
+          if (pdfPageElement) {
+            // Scroll the PDF view to the appropriate page
+            const pdfViewContent = document.getElementById('pdf-view-content');
+            if (pdfViewContent) {
+              pdfViewContent.scrollTo({
+                top: pdfPageElement.offsetTop,
+                behavior: 'smooth'
+              });
+              
+              // Set the current page
+              setCurrentPage(sectionPageNumber);
+            }
+          }
         }
-        
-        // Right panel (PDF view)
-        const rightPanel = document.getElementById('pdf-view-content');
-        const rightHighlight = document.querySelector(rightPanelSelector);
-        
-        if (rightPanel && rightHighlight) {
-          rightHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 100);
+      }, 200); // Slightly longer delay to ensure all content is rendered
     }
-  }, [activeTab, updateHighlightsForTab]);
+  }, [activeTab, updateHighlightsForTab, rfpContent]);
   
   // Calculate total pages based on the highest page number in content
   useEffect(() => {
