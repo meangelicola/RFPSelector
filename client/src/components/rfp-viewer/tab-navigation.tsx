@@ -8,24 +8,24 @@ interface TabNavigationProps {
 
 const TabNavigation: FC<TabNavigationProps> = ({ activeTab, setActiveTab }) => {
   const tabs = [
-    { id: "fullDocument", label: "View Full Document" },
+    { id: "fullDocument", label: "Solicitation" },
     { id: "instructions", label: "Instructions to Offeror" },
     { id: "evaluation", label: "Evaluation Criteria" },
     { id: "pws", label: "Performance Work Statement" },
   ];
 
   return (
-    <div className="bg-white border-b border-gray-200 font-roboto">
+    <div className="bg-white border-b border-gray-200">
       <div className="flex px-6">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             id={`tab-${tab.id}`}
             className={cn(
-              "px-6 py-4 font-medium",
+              "px-5 py-3 text-sm font-medium transition-colors",
               activeTab === tab.id
-                ? "text-government-blue border-b-2 border-government-blue"
-                : "text-gray-500 hover:text-government-blue"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-600 hover:text-blue-600 hover:border-b-2 hover:border-blue-200"
             )}
             onClick={() => setActiveTab(tab.id)}
           >

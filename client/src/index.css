@@ -24,12 +24,18 @@
   --ring: 20 14.3% 4.1%;
   --radius: 0.5rem;
   
-  /* RFP Viewer Custom Colors */
-  --government-blue: #1a365d;
+  /* RFP Viewer Custom Colors - AISelect Style */
+  --government-blue: #1976d2;
   --government-lightBlue: #4299e1;
   --government-red: #e53e3e;
   --government-navy: #1a202c;
-  --highlight-purple: #e6e6fa;
+  --highlight-purple: #e3f2fd;
+  --aiselect-primary: #1976d2;
+  --aiselect-secondary: #f5f5f5;
+  --aiselect-border: #e0e0e0;
+  --aiselect-header: #ffffff;
+  --aiselect-text: #333333;
+  --aiselect-accent: #4fc3f7;
 }
 
 .dark {

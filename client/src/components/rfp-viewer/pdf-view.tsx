@@ -68,138 +68,99 @@ const PdfView: FC<PdfViewProps> = ({
 
   return (
     <div className="w-1/2 flex flex-col">
-      <div className="bg-gray-100 px-4 py-2 border-b border-gray-300 flex justify-between items-center">
+      <div className="bg-white px-4 py-2 border-b border-gray-200 flex justify-between items-center">
         <div className="flex items-center">
-          <span className="font-medium text-sm">PDF View</span>
-          <span className="ml-4 text-xs text-gray-600">
-            Page <span id="current-page">{currentPage}</span> of{" "}
-            <span id="total-pages">{totalPages}</span>
-          </span>
+          <span className="font-medium text-sm text-gray-700">PDF View</span>
+          <button className="ml-4 text-blue-600 text-xs px-3 py-1 rounded border border-blue-600 flex items-center">
+            <svg
+              className="h-3.5 w-3.5 mr-1"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+              <polyline points="15 3 21 3 21 9" />
+              <line x1="10" y1="14" x2="21" y2="3" />
+            </svg>
+            Hide PDF Viewer
+          </button>
         </div>
         <div className="flex items-center space-x-2">
-          <button
-            className="text-gray-600 hover:text-government-blue p-1 rounded"
-            title="Previous Page"
-            onClick={handlePreviousPage}
-          >
-            <svg
-              className="h-4 w-4"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+          <div className="flex border border-gray-300 rounded overflow-hidden">
+            <button
+              className="text-gray-600 hover:bg-gray-100 p-1.5"
+              title="Zoom Out"
+              onClick={handleZoomOut}
             >
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          </button>
-          <button
-            className="text-gray-600 hover:text-government-blue p-1 rounded"
-            title="Next Page"
-            onClick={handleNextPage}
-          >
-            <svg
-              className="h-4 w-4"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+              <svg
+                className="h-3.5 w-3.5"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                <line x1="8" y1="11" x2="14" y2="11" />
+              </svg>
+            </button>
+            <span className="border-x border-gray-300 px-2 flex items-center text-xs">
+              {Math.round(zoomLevel * 100)}%
+            </span>
+            <button
+              className="text-gray-600 hover:bg-gray-100 p-1.5"
+              title="Zoom In"
+              onClick={handleZoomIn}
             >
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
-          </button>
-          <div className="border-l border-gray-300 h-6 mx-1"></div>
-          <button
-            className="text-gray-600 hover:text-government-blue p-1 rounded"
-            title="Zoom Out"
-            onClick={handleZoomOut}
-          >
-            <svg
-              className="h-4 w-4"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              <line x1="8" y1="11" x2="14" y2="11" />
-            </svg>
-          </button>
-          <button
-            className="text-gray-600 hover:text-government-blue p-1 rounded"
-            title="Zoom In"
-            onClick={handleZoomIn}
-          >
-            <svg
-              className="h-4 w-4"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              <line x1="11" y1="8" x2="11" y2="14" />
-              <line x1="8" y1="11" x2="14" y2="11" />
-            </svg>
-          </button>
+              <svg
+                className="h-3.5 w-3.5"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                <line x1="11" y1="8" x2="11" y2="14" />
+                <line x1="8" y1="11" x2="14" y2="11" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
+      
       <div
         id="pdf-view-content"
-        className="flex-1 bg-gray-200 overflow-y-auto p-6 custom-scrollbar"
+        className="flex-1 bg-gray-100 overflow-y-auto custom-scrollbar"
       >
-        <div id="pdf-pages-container" className="flex flex-col items-center">
+        <div id="pdf-pages-container" className="flex flex-col items-center py-6">
           <div
-            className="pdf-page w-full max-w-3xl p-10 mb-4 bg-white"
+            className="pdf-page w-full max-w-4xl px-10 py-8 mx-6 mb-6 bg-white shadow-md relative"
             style={{ transform: `scale(${zoomLevel})`, transformOrigin: "top center" }}
           >
             {currentPage === 1 && (
               <>
-                <div className="flex items-center justify-between mb-10">
-                  <svg 
-                    className="h-24 w-24" 
-                    viewBox="0 0 100 100" 
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <circle cx="50" cy="50" r="48" fill="#1a365d" stroke="#ffffff" strokeWidth="1" />
-                    <circle cx="50" cy="50" r="40" fill="#4299e1" />
-                    <path d="M30,40 L70,40 L70,70 L30,70 Z" fill="#ffffff" />
-                    <path d="M35,45 L65,45 L65,65 L35,65 Z" fill="#1a365d" />
-                    <text x="50" y="30" textAnchor="middle" fill="#ffffff" fontWeight="bold" fontSize="12">HHS</text>
-                    <text x="50" y="90" textAnchor="middle" fill="#ffffff" fontWeight="bold" fontSize="8">OFFICIAL SEAL</text>
-                  </svg>
-                  <div className="text-right">
-                    <p className="text-sm">Solicitation Number: HHS-2023-IT-0042</p>
-                    <p className="text-sm">Date: August 15, 2023</p>
-                  </div>
+                <div className="absolute top-2 right-2 text-xs text-gray-500">
+                  Attachment D
+                </div>
+                
+                <div className="text-right mb-8">
+                  <p className="text-xs">RFQ 89303024QIM000043</p>
+                  <p className="text-xs">Attachment D</p>
                 </div>
 
-                <div className="text-center mb-10">
-                  <h1 className="text-2xl font-bold">REQUEST FOR PROPOSAL</h1>
-                  <h2 className="text-xl mt-2">IT Support Services</h2>
-                  <p className="mt-4">Department of Health and Human Services</p>
-                  <p>Office of the Chief Information Officer</p>
+                <div className="text-center uppercase font-bold mb-8">
+                  <h1 className="text-xl mb-2">QUOTE PREPARATION INSTRUCTIONS</h1>
                 </div>
               </>
             )}
@@ -209,15 +170,15 @@ const PdfView: FC<PdfViewProps> = ({
                 key={`pdf-${section.sectionId}`}
                 id={`pdf-section-${section.sectionId}`}
                 className={cn(
-                  "mb-8 sync-highlight",
-                  isHighlighted(section) && "bg-highlight-purple",
-                  isHovered(section) && "bg-highlight-purple bg-opacity-50"
+                  "mb-8 sync-highlight p-2 -mx-2 rounded",
+                  isHighlighted(section) && "bg-blue-50",
+                  isHovered(section) && "bg-blue-100"
                 )}
                 data-section={section.sectionId}
                 onMouseEnter={() => handleMouseEnter(section.sectionId)}
                 onMouseLeave={handleMouseLeave}
               >
-                <h3 className="font-bold text-lg border-b-2 border-gray-300 pb-1 mb-4">
+                <h3 className="font-bold uppercase mb-4">
                   {section.title}
                 </h3>
                 <div className="pdf-content">
@@ -225,7 +186,7 @@ const PdfView: FC<PdfViewProps> = ({
                     {section.content.split("\n").map((paragraph, idx) => (
                       <p
                         key={`${section.sectionId}-pdf-p-${idx}`}
-                        className="mb-2"
+                        className="mb-3"
                       >
                         {paragraph}
                       </p>
@@ -235,8 +196,7 @@ const PdfView: FC<PdfViewProps> = ({
               </div>
             ))}
 
-            <div className="text-center mt-8 pt-4 border-t border-gray-300 text-xs text-gray-600">
-              <p>Department of Health and Human Services | IT Support Services RFP</p>
+            <div className="text-center mt-8 pt-4 border-t border-gray-200 text-xs text-gray-500">
               <p>Page {currentPage} of {totalPages}</p>
             </div>
           </div>

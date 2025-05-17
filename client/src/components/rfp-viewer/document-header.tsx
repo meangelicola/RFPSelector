@@ -2,33 +2,31 @@ import { FC } from "react";
 
 const DocumentHeader: FC = () => {
   return (
-    <header className="bg-government-navy text-white py-3 px-6 flex items-center justify-between">
+    <header className="bg-white border-b border-gray-200 py-3 px-6 flex items-center justify-between">
       <div className="flex items-center">
-        <svg 
-          className="h-12 w-12 mr-4" 
-          viewBox="0 0 100 100" 
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <circle cx="50" cy="50" r="48" fill="#1a365d" stroke="#ffffff" strokeWidth="1" />
-          <circle cx="50" cy="50" r="40" fill="#4299e1" />
-          <path d="M30,40 L70,40 L70,70 L30,70 Z" fill="#ffffff" />
-          <path d="M35,45 L65,45 L65,65 L35,65 Z" fill="#1a365d" />
-          <text x="50" y="30" textAnchor="middle" fill="#ffffff" fontWeight="bold" fontSize="12">HHS</text>
-          <text x="50" y="90" textAnchor="middle" fill="#ffffff" fontWeight="bold" fontSize="8">OFFICIAL SEAL</text>
-        </svg>
-        
-        <div>
-          <h1 className="font-roboto text-xl font-bold">Health and Human Services</h1>
-          <h2 className="text-sm opacity-80">RFP Document Viewer</h2>
+        <div className="flex items-center mr-4">
+          <svg
+            className="h-8 w-8 text-aiselect-primary mr-2"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+          </svg>
+          <div>
+            <h1 className="font-medium text-lg text-gray-800">Information Technology (IT)</h1>
+            <div className="flex items-center">
+              <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full mr-2">Finalized</span>
+              <span className="text-xs text-gray-500">RFQ 89303024QIM000043</span>
+            </div>
+          </div>
         </div>
       </div>
-      <div className="flex items-center space-x-4">
-        <button className="bg-government-red hover:bg-red-700 text-white px-4 py-2 rounded text-sm flex items-center">
+      <div className="flex items-center space-x-3">
+        <button className="text-gray-700 hover:bg-gray-100 px-3 py-1.5 rounded text-sm flex items-center border border-gray-300">
           <svg
-            className="mr-2 h-4 w-4"
+            className="mr-1.5 h-4 w-4"
             xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -36,31 +34,14 @@ const DocumentHeader: FC = () => {
             strokeLinecap="round"
             strokeLinejoin="round"
           >
-            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-            <polyline points="14 2 14 8 20 8" />
-            <path d="M16 13v-1h-8v1" />
-            <path d="M16 17v-1h-8v1" />
-            <path d="M10 9h-2" />
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
           </svg>
-          Export
+          Download
         </button>
-        <button className="bg-government-lightBlue hover:bg-blue-600 text-white px-4 py-2 rounded text-sm flex items-center">
-          <svg
-            className="mr-2 h-4 w-4"
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-          </svg>
-          John Doe
+        <button className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm">
+          Generate Proposal
         </button>
       </div>
     </header>
