@@ -300,14 +300,15 @@
   outline: none;
 }
 
+/* Physical highlighter animation and cursor styles */
 .selection-animation {
   position: absolute;
   pointer-events: none;
   z-index: 9999;
-  border: 3px solid transparent;
-  border-radius: 2px;
-  background-color: rgba(255, 255, 0, 0.3);
-  animation: highlighterEffect 0.6s ease-out forwards;
+  border: 0;
+  border-radius: 1px;
+  background-color: rgba(255, 255, 0, 0.5);
+  animation: highlighterSwipe 0.4s ease-out forwards;
   box-shadow: 0 0 8px rgba(255, 255, 0, 0.4);
 }
 
@@ -316,42 +317,46 @@
   cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="yellow" stroke="%23ff9900" stroke-width="2"><path d="M9.3 12.4L9.28 20M14.7 12.4L14.72 20M20 8.34L16 4.4L7.6 14.4L8 20L16 20L16.4 14.4L20 8.34z"/></svg>'), auto !important;
 }
 
-@keyframes highlighterEffect {
+@keyframes highlighterSwipe {
   0% {
     opacity: 0.9;
-    transform: scale(1.02);
+    transform: scale(1.0) translateX(-10px);
     background-color: rgba(255, 255, 0, 0.7);
   }
   50% {
     opacity: 0.7;
+    transform: scale(1.0) translateX(0);
     background-color: rgba(255, 255, 0, 0.5);
   }
   100% {
     opacity: 0;
-    transform: scale(1);
+    transform: scale(1.0) translateX(10px);
     background-color: rgba(255, 255, 0, 0.3);
   }
 }
 
-/* Custom highlight styles for each tab */
-.custom-highlight-instructions {
-  background-color: rgba(75, 0, 130, 0.3);
+/* Tab-specific highlight styles */
+.highlight-instructions {
+  background-color: rgba(75, 0, 130, 0.35);
   border-bottom: 2px solid #4B0082;
   padding-bottom: 1px;
+  padding: 0 1px;
   color: inherit;
 }
 
-.custom-highlight-pws {
-  background-color: rgba(255, 20, 147, 0.3);
+.highlight-pws {
+  background-color: rgba(255, 20, 147, 0.35);
   border-bottom: 2px solid #FF1493;
   padding-bottom: 1px;
+  padding: 0 1px;
   color: inherit;
 }
 
-.custom-highlight-evaluation {
-  background-color: rgba(255, 140, 0, 0.3);
+.highlight-evaluation {
+  background-color: rgba(255, 140, 0, 0.35);
   border-bottom: 2px solid #FF8C00;
   padding-bottom: 1px;
+  padding: 0 1px;
   color: inherit;
 }
 
