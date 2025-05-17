@@ -55,10 +55,14 @@ const ActionBar: FC<ActionBarProps> = ({
         {activeTab !== "fullDocument" && (
           <button
             id="btn-edit-refine"
-            className={`text-gray-700 hover:bg-gray-50 border border-gray-300 px-3 py-1.5 rounded text-sm flex items-center ${
+            className={`text-gray-700 hover:bg-gray-50 border-2 border-red-500 px-3 py-1.5 rounded text-sm flex items-center font-bold ${
               isEditMode ? "hidden" : ""
             }`}
             onClick={handleEditRefine}
+            style={{ 
+              boxShadow: "0 0 5px rgba(255, 0, 0, 0.5)",
+              padding: "8px 16px"
+            }}
           >
             <svg
               className="mr-1.5 h-4 w-4"
@@ -75,14 +79,18 @@ const ActionBar: FC<ActionBarProps> = ({
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
             </svg>
-            Edit/Refine
+            Edit Selections
           </button>
         )}
         {isEditMode && (
           <button
             id="btn-save-changes"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm flex items-center"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm flex items-center font-bold border-2 border-red-500"
             onClick={handleSaveChanges}
+            style={{ 
+              boxShadow: "0 0 5px rgba(255, 0, 0, 0.5)",
+              padding: "8px 16px"
+            }}
           >
             <svg
               className="mr-1.5 h-4 w-4"

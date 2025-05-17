@@ -441,10 +441,11 @@ const EditModal: FC<EditModalProps> = ({
               Cancel
             </button>
             <button
-              className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 border-2 border-red-500"
+              className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 border-2 border-red-500 font-bold"
               onClick={handleSave}
               style={{ 
                 boxShadow: "0 0 5px rgba(255, 0, 0, 0.5)",
+                padding: "8px 16px",
               }}
             >
               Save Selections
