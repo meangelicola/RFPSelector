@@ -64,3 +64,70 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+/* RFP Viewer Custom Styles */
+.bg-government-blue {
+  background-color: var(--government-blue);
+}
+
+.bg-government-lightBlue {
+  background-color: var(--government-lightBlue);
+}
+
+.bg-government-red {
+  background-color: var(--government-red);
+}
+
+.bg-government-navy {
+  background-color: var(--government-navy);
+}
+
+.bg-highlight-purple {
+  background-color: var(--highlight-purple);
+}
+
+.text-government-blue {
+  color: var(--government-blue);
+}
+
+.hover\:bg-blue-600:hover {
+  background-color: #3182ce;
+}
+
+.hover\:bg-blue-700:hover {
+  background-color: #2b6cb0;
+}
+
+.hover\:bg-red-700:hover {
+  background-color: #c53030;
+}
+
+.border-government-blue {
+  border-color: var(--government-blue);
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.font-code {
+  font-family: 'Source Code Pro', monospace;
+}
+
+.font-roboto {
+  font-family: 'Roboto', sans-serif;
+}
