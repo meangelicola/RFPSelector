@@ -276,3 +276,61 @@
 .font-roboto {
   font-family: 'Roboto', sans-serif;
 }
+
+/* Edit document styles */
+.editable-document {
+  cursor: text;
+  user-select: text;
+}
+
+.editable-document::selection {
+  background-color: rgba(65, 105, 225, 0.3);
+}
+
+.editable-document::-moz-selection {
+  background-color: rgba(65, 105, 225, 0.3);
+}
+
+.editable-document:focus {
+  caret-color: blue;
+  outline: none;
+}
+
+.selection-animation {
+  position: absolute;
+  pointer-events: none;
+  z-index: 9999;
+  border: 2px solid #007bff;
+  border-radius: 2px;
+  background-color: rgba(255, 255, 255, 0.3);
+  animation: selectionFade 0.4s ease-out forwards;
+}
+
+@keyframes selectionFade {
+  from {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+.save-notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 9999;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+.save-notification.fade {
+  opacity: 0;
+}

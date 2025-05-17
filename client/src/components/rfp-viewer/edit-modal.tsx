@@ -17,6 +17,12 @@ interface EditModalProps {
   saveChanges: () => void;
 }
 
+const tabNames: Record<string, string> = {
+  'instructions': 'Instructions to Offeror',
+  'evaluation': 'Evaluation Criteria',
+  'pws': 'Performance Work Statement'
+};
+
 const EditModal: FC<EditModalProps> = ({
   activeTab,
   setShowEditModal,
@@ -25,31 +31,72 @@ const EditModal: FC<EditModalProps> = ({
   saveChanges,
 }) => {
   // Tab navigation within the edit modal
-  const [selectedEditTab, setSelectedEditTab] = useState("instructions");
+  const [selectedEditTab, setSelectedEditTab] = useState(activeTab === "fullDocument" ? "instructions" : activeTab);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [selections, setSelections] = useState<CharacterSelection[]>([]);
   
   // Store previous tab for confirmation before switching
   const prevTabRef = useRef(selectedEditTab);
+  // Refs for scrolling and content management
+  const modalContentRef = useRef<HTMLDivElement>(null);
   
-  // Filter document sections by the selected edit tab
+  // Get all document sections for the selected edit tab
   const filteredContent = rfpContent.filter(
     (section) => section.tabCategory === selectedEditTab
   );
   
-  // Initialize the edit tab based on the main application tab
+  // Auto-scroll to first highlighted section when modal opens or tab changes
   useEffect(() => {
-    if (activeTab !== "fullDocument") {
-      setSelectedEditTab(activeTab);
-    }
-  }, [activeTab]);
+    const scrollToFirstHighlight = () => {
+      if (modalContentRef.current) {
+        setTimeout(() => {
+          const highlightClass = `highlight-${selectedEditTab}`;
+          const firstHighlight = modalContentRef.current?.querySelector(`.${highlightClass}`);
+          
+          if (firstHighlight) {
+            firstHighlight.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'center' 
+            });
+          }
+        }, 100); // Small delay to ensure DOM is updated
+      }
+    };
+    
+    scrollToFirstHighlight();
+  }, [selectedEditTab]);
   
-  // Handle character-level selection
+  // Show visual animation for selection
+  const showSelectionAnimation = (rect: DOMRect) => {
+    // Create animation element
+    const animation = document.createElement('div');
+    animation.className = 'selection-animation';
+    animation.style.left = `${rect.left}px`;
+    animation.style.top = `${rect.top}px`;
+    animation.style.width = `${rect.width}px`;
+    animation.style.height = `${rect.height}px`;
+    
+    // Add to document
+    document.body.appendChild(animation);
+    
+    // Remove after animation completes
+    setTimeout(() => {
+      if (document.body.contains(animation)) {
+        document.body.removeChild(animation);
+      }
+    }, 400); // Match the animation duration
+  };
+  
+  // Handle character-level selection with improved visual feedback
   const handleTextSelection = () => {
     const selection = window.getSelection();
     if (!selection || selection.isCollapsed) return;
     
     const range = selection.getRangeAt(0);
+    
+    // Get selection coordinates for visual feedback
+    const rect = range.getBoundingClientRect();
+    
     const startNode = range.startContainer;
     const startContainer = startNode.parentElement;
     
@@ -84,6 +131,9 @@ const EditModal: FC<EditModalProps> = ({
     
     // Apply visual highlighting
     highlightSelection(range, selectedEditTab);
+    
+    // Show visual selection animation
+    showSelectionAnimation(rect);
     
     // Clear the selection
     selection.removeAllRanges();
@@ -122,13 +172,65 @@ const EditModal: FC<EditModalProps> = ({
       range.surroundContents(span);
     } catch (e) {
       console.error('Cannot highlight selection:', e);
+      // Handle complex selections that span multiple nodes
+      handleComplexSelection(range, category);
     }
+  };
+  
+  // Handle complex selections that span multiple nodes
+  const handleComplexSelection = (range: Range, category: string) => {
+    try {
+      // Clone the range to avoid modifying the original
+      const clonedRange = range.cloneRange();
+      
+      // Create a new range for each text node in the selection
+      const startNode = range.startContainer;
+      const endNode = range.endContainer;
+      const startOffset = range.startOffset;
+      const endOffset = range.endOffset;
+      
+      if (startNode === endNode && startNode.nodeType === Node.TEXT_NODE) {
+        // Simple case: selection within a single text node
+        const span = document.createElement('span');
+        span.className = `highlight-${category}`;
+        
+        const newRange = document.createRange();
+        newRange.setStart(startNode, startOffset);
+        newRange.setEnd(startNode, endOffset);
+        newRange.surroundContents(span);
+      } else {
+        // Complex case - fragmenting selection not supported in this prototype
+        console.log("Complex selection across multiple nodes not supported");
+      }
+    } catch (e) {
+      console.error("Failed to handle complex selection:", e);
+    }
+  };
+  
+  // Show save confirmation notification
+  const showSaveConfirmation = (tabName: string) => {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = 'save-notification';
+    notification.textContent = `Changes to ${tabName} saved successfully!`;
+    
+    document.body.appendChild(notification);
+    
+    // Remove after delay
+    setTimeout(() => {
+      notification.classList.add('fade');
+      setTimeout(() => {
+        if (document.body.contains(notification)) {
+          document.body.removeChild(notification);
+        }
+      }, 500);
+    }, 3000);
   };
   
   // Handle tab switching with confirmation for unsaved changes
   const handleTabSwitch = (newTab: string) => {
     if (hasUnsavedChanges) {
-      if (window.confirm(`Would you like to save your changes to the ${selectedEditTab} section?`)) {
+      if (window.confirm(`Would you like to save your changes to the ${tabNames[selectedEditTab]} section?`)) {
         // Save the current tab changes
         handleSaveTab();
       } else {
@@ -169,7 +271,7 @@ const EditModal: FC<EditModalProps> = ({
     setHasUnsavedChanges(false);
     
     // Display success message
-    alert(`Changes for ${selectedEditTab} section saved successfully!`);
+    showSaveConfirmation(tabNames[selectedEditTab]);
   };
   
   const handleCancel = () => {
@@ -196,15 +298,24 @@ const EditModal: FC<EditModalProps> = ({
     setShowEditModal(false);
     
     // Success message
-    alert("All changes have been saved successfully!");
+    showSaveConfirmation("All document sections");
   };
 
-  // Get highlight classes for tabs and sections
-  const getHighlightClass = (tabCategory: string) => {
-    if (tabCategory === "instructions") return "highlight-instructions";
-    if (tabCategory === "pws") return "highlight-pws";
-    if (tabCategory === "evaluation") return "highlight-evaluation";
-    return "";
+  // Remove highlighted text when clicking on it
+  const handleHighlightClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.classList.contains(`highlight-${selectedEditTab}`)) {
+      const parent = target.parentNode;
+      if (parent) {
+        const text = target.textContent || '';
+        const textNode = document.createTextNode(text);
+        parent.replaceChild(textNode, target);
+        setHasUnsavedChanges(true);
+        
+        // Update selections state (would need to match based on text content and position)
+        // This is simplified for the prototype
+      }
+    }
   };
 
   return (
@@ -214,7 +325,7 @@ const EditModal: FC<EditModalProps> = ({
         <div className="border-b border-gray-200">
           <div className="flex px-6 py-3 justify-between items-center">
             <div>
-              <h2 className="text-xl font-semibold text-gray-800">Edit Document</h2>
+              <h2 className="text-xl font-semibold text-gray-800">Edit Selections</h2>
               <p className="text-sm text-gray-600 mt-1">
                 Select text to add to your proposal
               </p>
@@ -256,8 +367,11 @@ const EditModal: FC<EditModalProps> = ({
           </div>
         </div>
 
-        {/* Section content */}
-        <div className="overflow-y-auto flex-1 p-6">
+        {/* Section content with improved selection handling */}
+        <div 
+          ref={modalContentRef}
+          className="overflow-y-auto flex-1 p-6 custom-scrollbar"
+        >
           <div className="space-y-8">
             {filteredContent.map((section) => (
               <div
@@ -267,8 +381,13 @@ const EditModal: FC<EditModalProps> = ({
               >
                 <h3 className="font-bold text-gray-900 mb-4 uppercase">{section.title}</h3>
                 <div 
-                  className="text-sm section-content" 
+                  className="text-sm section-content editable-document" 
                   onMouseUp={handleTextSelection}
+                  onClick={handleHighlightClick}
+                  contentEditable={true}
+                  suppressContentEditableWarning={true}
+                  spellCheck={false}
+                  onInput={(e) => e.preventDefault()} // Prevent actual editing
                 >
                   {section.content.split("\n").map((paragraph, pIdx) => (
                     <div key={`${section.sectionId}-p-${pIdx}`} className="mb-3">
@@ -284,7 +403,7 @@ const EditModal: FC<EditModalProps> = ({
         {/* Footer with action buttons */}
         <div className="border-t border-gray-200 p-4 flex justify-between items-center">
           <div className="text-sm text-gray-600">
-            Select specific text by highlighting it. You can select text from different sections.
+            Select specific text by highlighting it. Click on highlighted text to remove the highlight.
           </div>
           <div className="space-x-3">
             <button
